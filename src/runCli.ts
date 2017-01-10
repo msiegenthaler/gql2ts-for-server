@@ -1,5 +1,5 @@
 import glob = require('glob')
-import {Converter} from './index'
+import {Converter, Target} from './index'
 // Import via ES 5, node-style 'require', because there are no typings for this file (yet)
 const mfs = require('m-io/fs')
 
@@ -8,7 +8,24 @@ export interface CliArgs {
      * An array of exclude paths
      */
     exclude: string[],
-    dontSaveSameFile: boolean
+    dontSaveSameFile: boolean,
+    target: string
+}
+
+function targetFor(targetString: string): Target {
+    switch (targetString.toLowerCase()) {
+        case 'apollo':
+            return Target.APOLLO
+
+        case 'graphql-js':
+        case 'graphqljs':
+        case '':
+            return Target.GRAPHQL_JS
+
+        default:
+            console.log(`Unknown target '${targetString}. Please use one of 'apollo', 'graphql-js'`)
+            process.exit(1)
+    }
 }
 
 export async function runCli(cliArgs: CliArgs): Promise<any> {
@@ -22,7 +39,9 @@ export async function runCli(cliArgs: CliArgs): Promise<any> {
         ignore: cliArgs.exclude
     })
 
-    const converter = new Converter()
+    const target = targetFor(cliArgs.target || '')
+    const targetName = Target[target]
+    const converter = new Converter({target})
 
     const promises = files.map(async (sourceFile) => {
         const targetFile = sourceFile + '.ts'
@@ -32,14 +51,14 @@ export async function runCli(cliArgs: CliArgs): Promise<any> {
             if (cliArgs.dontSaveSameFile) {
                 const oldContents = await mfs.read(targetFile)
                 if (oldContents === ts) {
-                    console.log(`${sourceFile} -> ${targetFile}`, 'success')
+                    console.log(`${sourceFile} -> ${targetFile} (${targetName})`, 'success')
                     return
                 }
             }
             await mfs.write(targetFile, ts)
-            console.log(`${sourceFile} -> ${targetFile}`, 'success')
+            console.log(`${sourceFile} -> ${targetFile} (${targetName})`, 'success')
         } catch (e) {
-            console.log(`${sourceFile} -> ${targetFile}`, e)
+            console.log(`${sourceFile} -> ${targetFile} (${targetName})`, e)
         }
     })
     return Promise.all(promises)

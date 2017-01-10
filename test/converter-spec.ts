@@ -10,12 +10,16 @@
 // /* global xdescribe */
 // /* global xit */
 
-import {Converter} from '../src/index'
+import {Converter, Target} from '../src/index'
 import path = require('path')
 import fs = require('fs')
 import {expect} from 'chai'
+import {keys} from 'lodash'
 
-const converter = new Converter()
+const converters = {
+    apollo: new Converter({target: Target.APOLLO}),
+    graphqljs: new Converter({target: Target.GRAPHQL_JS})
+}
 
 function fixture(filename) {
     return path.join(__dirname, 'schemas', filename)
@@ -33,19 +37,20 @@ describe('gql2ts-for-server:', function () {
     fs.readdirSync(path.join(__dirname, 'schemas'))
         .filter((file) => file.match(/\.graphqls$/))
         .forEach((file) => {
+            keys(converters).forEach((converterKey) => {
+                it(`should handle ${file} correctly for ${converterKey}`, async function () {
+                    const converter = converters[converterKey]
+                    const source = fixture(file)
+                    const target = source.replace(/\.graphqls$/,`-${converterKey}.ts`)
 
-            it(`should handle ${file} correctly`, async function () {
-                const source = fixture(file)
-                const target = source.replace(/\.graphqls$/,'.ts')
-
-                const result = await converter.convert(read(source))
-                // If the target file does not exist yet, we write it
-                // with a short disclaimer, so that the test does not pass
-                if (!fs.existsSync(target)) {
-                    store(target, `// Please check this result\n${result}`)
-                }
-                expect(result).to.equal(read(target))
+                    const result = await converter.convert(read(source))
+                    // If the target file does not exist yet, we write it
+                    // with a short disclaimer, so that the test does not pass
+                    if (!fs.existsSync(target)) {
+                        store(target, `// Please check this result\n${result}`)
+                    }
+                    expect(result).to.equal(read(target))
+                })
             })
-
         })
 })

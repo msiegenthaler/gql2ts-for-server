@@ -14,8 +14,8 @@ import path = require('path')
 import fs = require('fs')
 import {expect} from 'chai'
 import {buildSchema, graphql} from 'graphql'
-import {schema as simpleSchema} from './schemas/simpleSchema'
-import {schema as argumentSchema} from './schemas/arguments'
+import {schema as simpleSchema} from './schemas/simpleSchema-graphqljs'
+import {schema as argumentSchema} from './schemas/arguments-graphqljs'
 
 function fixture(filename) {
     return path.join(__dirname, 'schemas', filename)

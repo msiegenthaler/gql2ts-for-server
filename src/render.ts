@@ -1,8 +1,14 @@
 import {Root, TypeDef, Field, Argument, EnumValue, InputField} from './model'
 import {source, OMIT_NEXT_NEWLINE} from './renderTag'
 
+export enum Target {
+    GRAPHQL_JS,
+    APOLLO
+}
+
 export interface Options {
     tslint?: Object
+    target: Target
 }
 
 export class Renderer {
@@ -42,9 +48,17 @@ ${namespace.replace(/^\s+$/mg, '')}`
     }
 
     renderResolverDefinition() {
-        return 'Result | ' +
-               'Promise<Result> | ' +
-               '((args: Args, context: Ctx) => Result | Promise<Result>)'
+        switch (this.options.target) {
+            case Target.APOLLO:
+                return 'Result | ' +
+                    'Promise<Result> | ' +
+                    '((obj: any, args: Args, context: Ctx) => Result | Promise<Result>)'
+
+            case Target.GRAPHQL_JS:
+                return 'Result | ' +
+                    'Promise<Result> | ' +
+                    '((args: Args, context: Ctx) => Result | Promise<Result>)'
+        }
     }
 
     /**

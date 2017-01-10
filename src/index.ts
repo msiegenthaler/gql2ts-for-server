@@ -6,12 +6,19 @@
  */
 
 import {graphql, introspectionQuery, buildSchema} from 'graphql'
-import {Renderer} from './render'
+import {Renderer, Options, Target} from './render'
+export {Target} from './render'
 
 /**
  * The converter class
  */
 export class Converter {
+    options: Options
+
+    constructor(options?: Options) {
+        this.options = options || {target: Target.GRAPHQL_JS}
+    }
+
     /**
      * Converts a graphQL schema into a TypeScript interface.
      * @param graphqls the source code of the graphQL schema
@@ -19,7 +26,7 @@ export class Converter {
      */
     public async convert(graphqls: string): Promise<string> {
         const schema: any = buildSchema(graphqls)
-        const renderer = new Renderer({})
+        const renderer = new Renderer(this.options)
         const introSpection: any = await graphql(schema, introspectionQuery, {})
         return renderer.render(introSpection)
     }

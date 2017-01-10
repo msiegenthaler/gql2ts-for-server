@@ -1,4 +1,4 @@
-#!/usr/bin/env node 
+#!/usr/bin/env node
 "use strict";
 const program = require("commander");
 const runCli_1 = require("../src/runCli");
@@ -17,10 +17,13 @@ program.version(require('../package.json').version)
     .option('-x, --exclude <dirs>', 'a list of directories to exclude', (current, last) => last.concat([current]), ['node_modules'])
     .option('--dont-save-same-file', 'do not save a file if the contents has not changed. ' +
     'This read each target file prior to loading')
+    .option('-t, --target <graphql-js|apolllo>', "Server implementation the generated inferfaces will be used with. Either 'graphql-js' or 'apollo'. " +
+    "The default is 'graphql-js'.")
     .parse(process.argv);
 runCli_1.runCli({
     exclude: stringArray(program['exclude'], "Verification of 'exclude'-parameter"),
-    dontSaveSameFile: Boolean(program['dontSaveSameFile'])
+    dontSaveSameFile: Boolean(program['dontSaveSameFile']),
+    target: program['target']
 })
     .then(() => console.log('done'));
 //# sourceMappingURL=gql2ts-for-server.js.map

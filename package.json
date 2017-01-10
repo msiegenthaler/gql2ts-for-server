@@ -54,6 +54,7 @@
     "ghooks": "^1.0.3",
     "graphql": "^0.7.2",
     "mocha": "^2.3.3",
+    "lodash": "^4.17.4",
     "thoughtful-release": "^0.3.0",
     "ts-node": "^1.7.0",
     "tslint": "^4.3.1",
