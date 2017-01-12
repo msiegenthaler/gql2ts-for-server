@@ -3,6 +3,8 @@
 export namespace schema {
     export type Resolver<Args, Result, Ctx> = Result | Promise<Result> | ((args: Args, context: Ctx) => Result | Promise<Result>)
 
+    export type Friend<Ctx> = Person<Ctx> | Animal<Ctx>
+
     /**
      * The base query
      */
@@ -28,6 +30,11 @@ export namespace schema {
         /**
          * Friendship relations to other persons
          */
-        friends?: Resolver<{}, Person<Ctx>[] | undefined, Ctx>
+        friends?: Resolver<{}, Friend<Ctx>[] | undefined, Ctx>
+    }
+
+    export interface Animal<Ctx> {
+        name: Resolver<{}, string, Ctx>
+        kind?: Resolver<{}, string | undefined, Ctx>
     }
 }
